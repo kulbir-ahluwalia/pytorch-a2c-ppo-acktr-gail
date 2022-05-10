@@ -205,10 +205,18 @@ class KFACOptimizer(optim.Optimizer):
             if self.steps % self.Tf == 0:
                 # My asynchronous implementation exists, I will add it later.
                 # Experimenting with different ways to this in PyTorch.
-                self.d_a[m], self.Q_a[m] = torch.symeig(
-                    self.m_aa[m], eigenvectors=True)
-                self.d_g[m], self.Q_g[m] = torch.symeig(
-                    self.m_gg[m], eigenvectors=True)
+
+                # L, V = torch.symeig(A, eigenvectors=True)
+                # should be replaced with
+                # L, V = torch.linalg.eigh(A, UPLO='U' if upper else 'L')
+
+                # self.d_a[m], self.Q_a[m] = torch.symeig(self.m_aa[m], eigenvectors=True)
+                self.d_a[m], self.Q_a[m] = torch.linalg.eigh(self.m_aa[m], UPLO='U')
+
+
+
+                # self.d_g[m], self.Q_g[m] = torch.symeig(self.m_gg[m], eigenvectors=True)
+                self.d_g[m], self.Q_g[m] = torch.linalg.eigh(self.m_gg[m], UPLO='U')
 
                 self.d_a[m].mul_((self.d_a[m] > 1e-6).float())
                 self.d_g[m].mul_((self.d_g[m] > 1e-6).float())
